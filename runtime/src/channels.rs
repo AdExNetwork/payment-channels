@@ -1,25 +1,32 @@
 /// For more guidance on Substrate modules, see the example module
 /// https://github.com/paritytech/substrate/blob/gav-template/srml/example/src/lib.rs
 
-use support::{decl_module, decl_storage, decl_event, StorageValue, dispatch::Result};
+use support::{decl_module, decl_storage, decl_event, StorageMap, ensure, dispatch::Result};
 use system::ensure_signed;
 use parity_codec::{Encode,Decode};
+use balances;
+use runtime_primitives::traits::Hash;
 
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-struct Channel<AccountId, Balance> {
+pub struct Channel<AccountId, Balance> {
     sender: AccountId,
     receiver: AccountId,
     deposit: Balance,
 }
 
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-struct ChannelState<Hash, Balance> {
+pub struct ChannelOffchainState<Hash, Balance> {
     channel_id: Hash,
     balance: Balance,
 }
 
+#[derive(Encode, Decode, Clone, PartialEq)]
+pub enum ChannelStatus {
+    Active,
+}
+
 /// The module's configuration trait.
-pub trait Trait: system::Trait {
+pub trait Trait: system::Trait + balances::Trait {
 	// TODO: Add other types and constants required configure this module.
 
 	/// The overarching event type.
@@ -29,10 +36,7 @@ pub trait Trait: system::Trait {
 /// This module's storage items.
 decl_storage! {
 	trait Store for Module<T: Trait> as ChannelsModule {
-		// Just a dummy storage item. 
-		// Here we are declaring a StorageValue, `Something` as a Option<u32>
-		// `get(something)` is the default getter which returns either the stored `u32` or `None` if nothing stored
-		Something get(something): Option<u32>;
+		State get(state): map T::Hash => Option<ChannelStatus>;
 	}
 }
 
@@ -43,19 +47,12 @@ decl_module! {
 		// this is needed only if you are using events in your module
 		fn deposit_event<T>() = default;
 
-		// Just a dummy entry point.
-		// function that can be called by the external world as an extrinsics call
-		// takes a parameter of the type `AccountId`, stores it and emits an event
-		pub fn do_something(origin, something: u32) -> Result {
-			// TODO: You only need this if you want to check it was signed.
-			let who = ensure_signed(origin)?;
-
-			// TODO: Code to execute when something calls this.
-			// For example: the following line stores the passed in u32 in the storage
-			<Something<T>>::put(something);
-
-			// here we are raising the Something event
-			Self::deposit_event(RawEvent::SomethingStored(something, who));
+		pub fn channel_open(origin, channel: Channel<T::AccountId, T::Balance>) -> Result {
+			let sender = ensure_signed(origin)?;
+                        ensure!(sender == channel.sender, "channel sender is ok");
+                        let channel_id = T::Hashing::hash_of(&channel);
+			<State<T>>::insert(channel_id, ChannelStatus::Active);
+			//Self::deposit_event(RawEvent::SomethingStored(something, who));
 			Ok(())
 		}
 	}
@@ -121,11 +118,9 @@ mod tests {
 	#[test]
 	fn it_works_for_default_value() {
 		with_externalities(&mut new_test_ext(), || {
-			// Just a dummy test for the dummy funtion `do_something`
-			// calling the `do_something` function with a value 42
-			assert_ok!(ChannelsModule::do_something(Origin::signed(1), 42));
-			// asserting that the stored value is equal to what we stored
-			assert_eq!(ChannelsModule::something(), Some(42));
+			let channel = Channel { sender: 1, receiver: 2, deposit: 10 };
+                        assert_ok!(ChannelsModule::channel_open(Origin::signed(1), channel.to_owned()));
+			assert_eq!(ChannelsModule::state(T::Hashing::hash_of(&channel)), Some(()));
 		});
 	}
 }
