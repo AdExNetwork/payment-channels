@@ -10,6 +10,14 @@
 
 use support::{decl_module, decl_storage, decl_event, StorageValue, dispatch::Result};
 use system::ensure_signed;
+use parity_codec::{Encode,Decode};
+
+#[derive(Encode, Decode, Default, Clone, PartialEq)]
+struct Channel<AccountId, Balance> {
+    sender: AccountId,
+    receiver: AccountId,
+    deposit: Balance,
+}
 
 /// The module's configuration trait.
 pub trait Trait: system::Trait {
