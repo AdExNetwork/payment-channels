@@ -1,0 +1,8 @@
+{
+    "Channel": {
+        "sender": "AccountId",
+        "receiver": "AccountId",
+        "deposit": "Balance"
+    }
+}
+
