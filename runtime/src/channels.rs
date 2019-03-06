@@ -7,20 +7,20 @@ use parity_codec::{Encode,Decode};
 use balances;
 use runtime_primitives::traits::Hash;
 
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, Debug)]
 pub struct Channel<AccountId, Balance> {
     sender: AccountId,
     receiver: AccountId,
     deposit: Balance,
 }
 
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, Debug)]
 pub struct ChannelOffchainState<Hash, Balance> {
     channel_id: Hash,
     balance: Balance,
 }
 
-#[derive(Encode, Decode, Clone, PartialEq)]
+#[derive(Encode, Decode, Clone, PartialEq, Debug)]
 pub enum ChannelStatus {
     Active,
 }
