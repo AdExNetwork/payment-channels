@@ -12,6 +12,12 @@ struct Channel<AccountId, Balance> {
     deposit: Balance,
 }
 
+#[derive(Encode, Decode, Default, Clone, PartialEq)]
+struct ChannelState<Hash, Balance> {
+    channel_id: Hash,
+    balance: Balance,
+}
+
 /// The module's configuration trait.
 pub trait Trait: system::Trait {
 	// TODO: Add other types and constants required configure this module.
