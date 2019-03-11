@@ -2,7 +2,7 @@
 
 # NO LONGER MAINTAINED
 
-For a full example of payment channels on Substrate, see https://github.com/adexnetwork/adex-protocol-substrate
+## For a full example of payment channels on Substrate, see https://github.com/adexnetwork/adex-protocol-substrate
 
 ----
 
