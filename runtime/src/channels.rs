@@ -33,6 +33,8 @@ pub trait Trait: system::Trait + balances::Trait {
 	type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
 }
 
+pub type signature = primitives::H512;
+
 /// This module's storage items.
 decl_storage! {
 	trait Store for Module<T: Trait> as ChannelsModule {
@@ -51,10 +53,21 @@ decl_module! {
 			let sender = ensure_signed(origin)?;
                         ensure!(sender == channel.sender, "channel sender is ok");
                         let channel_id = T::Hashing::hash_of(&channel);
+                        ensure!(!<State<T>>::exists(&channel_id), "channel does not exist");
 			<State<T>>::insert(channel_id, ChannelStatus::Active);
 			//Self::deposit_event(RawEvent::SomethingStored(something, who));
 			Ok(())
 		}
+
+                pub fn channel_withdraw(
+                    origin,
+                    channel: Channel<T::AccountId, T::Balance>,
+                    sig1: Signature,
+                    sig2: Signature,
+                    offchain_state: ChannelOffchainState<T::Hash, T::Balance>
+                ) -> Result {
+
+                }
 	}
 }
 
